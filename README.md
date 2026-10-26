@@ -18,30 +18,32 @@ O projeto é estruturado de forma desacoplada em duas camadas principais:
    * **Matriz (Conexão Direta):** Executa comandos `WinRM` / `PSRemoting` de salto único diretamente no Domain Controller principal.
    * **Filiais (Duplo Salto / CredSSP):** Trafega com autenticação delegada de **duplo salto (Double-Hop)** passando por um servidor **Jumper** até o controlador de domínio da filial.
 
-              ┌──────────────────────────────┐
-              │   Outlook Desktop (MAPI)     │
-              └──────────────┬───────────────┘
-                             │
-               [processar_email.ps1]
-                             │
-             ┌───────────────┴───────────────┐
-             ▼                               ▼
-   ┌──────────────────┐            ┌──────────────────┐
-   │   Pasta /Teste   │            │  Pasta /FTeste   │
-   │    (Matriz)      │            │    (Filiais)     │
-   └────────┬─────────┘            └────────┬─────────┘
-            │                               │
-    WinRM (1 Salto)                 CredSSP (Double-Hop)
-            │                               │
-            ▼                               ▼
-┌──────────────────────┐        ┌──────────────────────┐
-│  DC Matriz (Primary) │        │   Servidor Jumper    │
-└──────────────────────┘        └──────────┬───────────┘
-                                           │
-                                           ▼
-                                ┌──────────────────────┐
-                                │      DC Filial       │
-                                └──────────────────────┘
+```text
++-------------------------------------------------------+
+|                Outlook Desktop (MAPI)                 |
++---------------------------+---------------------------+
+                            |
+                   [processar_email.ps1]
+                            |
+            +---------------+---------------+
+            |                               |
+            v                               v
++-----------------------+       +-----------------------+
+|     Pasta /Teste      |       |     Pasta /FTeste     |
+|       (Matriz)        |       |       (Filiais)       |
++-----------+-----------+       +-----------+-----------+
+            |                               |
+     WinRM (1 Salto)               CredSSP (Double-Hop)
+            |                               |
+            v                               v
++-----------------------+       +-----------------------+
+|  DC Matriz (Primary)  |       |    Servidor Jumper    |
++-----------------------+       +-----------+-----------+
+                                            |
+                                            v
+                                +-----------------------+
+                                |       DC Filial       |
+                                +-----------------------+
 
 ---
 
